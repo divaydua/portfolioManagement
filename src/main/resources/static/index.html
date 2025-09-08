@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Portfolio - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="/js/app.js"></script>
+  </head>
+  <body class="bg-slate-50">
+    <nav class="bg-white border-b border-slate-200">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xl font-semibold">📈 Portfolio</div>
+        <a href="/dashboard.html" class="text-sm text-slate-600 hover:text-slate-900">Dashboard</a>
+      </div>
+    </nav>
+
+    <header class="max-w-6xl mx-auto px-4 py-12">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 class="text-4xl font-bold text-slate-900">Manage your investments with clarity</h1>
+          <p class="mt-3 text-slate-600">Seed a demo account, sign up, or log in to start tracking holdings. This lightweight UI talks directly to the Spring Boot backend.</p>
+          <div class="mt-6 flex gap-3">
+            <button id="seed" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Create demo user</button>
+            <a id="toDashboard" class="px-4 py-2 rounded border border-slate-300 text-slate-800 hover:bg-white/50" href="#">Open Dashboard</a>
+          </div>
+          <p id="seedResult" class="mt-2 text-sm text-slate-600"></p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <h2 class="font-semibold text-slate-900">Sign up</h2>
+              <label class="block text-sm text-slate-600 mt-2">Username</label>
+              <input id="su_username" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" placeholder="username" />
+              <label class="block text-sm text-slate-600 mt-2">Email</label>
+              <input id="su_email" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" placeholder="email" />
+              <label class="block text-sm text-slate-600 mt-2">Password</label>
+              <input id="su_password" type="password" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" placeholder="password" />
+              <button id="signup" class="mt-3 w-full px-4 py-2 rounded bg-slate-900 text-white hover:bg-slate-800">Create account</button>
+              <pre id="signupResult" class="mt-3 text-xs text-slate-600"></pre>
+            </div>
+            <div>
+              <h2 class="font-semibold text-slate-900">Login</h2>
+              <label class="block text-sm text-slate-600 mt-2">Username</label>
+              <input id="li_username" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" placeholder="username" />
+              <label class="block text-sm text-slate-600 mt-2">Password</label>
+              <input id="li_password" type="password" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" placeholder="password" />
+              <button id="login" class="mt-3 w-full px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Sign in</button>
+              <pre id="loginResult" class="mt-3 text-xs text-slate-600"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+      const { api, state, toast } = window.App || {};
+      const seedBtn = document.getElementById('seed');
+      const signupBtn = document.getElementById('signup');
+      const loginBtn = document.getElementById('login');
+      const toDash = document.getElementById('toDashboard');
+
+      if (!api) {
+        console.error('App helpers not loaded');
+        return;
+      }
+
+      seedBtn && (seedBtn.onclick = async () => {
+        const res = await api('/test-users');
+        if (res.ok) toast('Demo user ready: demo/demo123', 'success');
+        document.getElementById('seedResult').textContent = typeof res.data === 'string' ? res.data : JSON.stringify(res.data);
+      });
+
+      signupBtn && (signupBtn.onclick = async () => {
+        const body = JSON.stringify({
+          username: document.getElementById('su_username').value,
+          email: document.getElementById('su_email').value,
+          password: document.getElementById('su_password').value
+        });
+        const res = await api('/auth/signup', { method: 'POST', body });
+        if (res.ok) toast('Account created. You can now login.', 'success');
+        document.getElementById('signupResult').textContent = JSON.stringify(res.data, null, 2);
+      });
+
+      loginBtn && (loginBtn.onclick = async () => {
+        const u = document.getElementById('li_username').value;
+        const body = JSON.stringify({ username: u, password: document.getElementById('li_password').value });
+        const res = await api('/auth/login', { method: 'POST', body });
+        if (res.ok) {
+          state.username = u;
+          toast('Signed in', 'success');
+        } else {
+          toast('Login failed', 'error');
+        }
+        document.getElementById('loginResult').textContent = JSON.stringify(res.data, null, 2);
+      });
+
+      toDash && (toDash.onclick = (e) => {
+        e.preventDefault();
+        const u = state.username;
+        const url = '/dashboard.html' + (u ? ('?username=' + encodeURIComponent(u)) : '');
+        window.location.href = url;
+      });
+      });
+    </script>
+  </body>
+  </html>
+
+

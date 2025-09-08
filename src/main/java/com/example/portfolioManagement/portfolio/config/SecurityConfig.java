@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -30,15 +31,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // disable CSRF for APIs (you can enable later with tokens)
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // allow open endpoints
-                        .requestMatchers("/auth/**", "/public/**", "/test-users").permitAll()
-                        // secure all other requests
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/", "/index.html", 
+                                "/auth/**", 
+                                "/public/**", 
+                                "/test-users",
+                                "/portfolio/**",
+                                "/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico"
+                        ).permitAll()
+                        .anyRequest().permitAll()
                 )
-                // for now use httpBasic (easy testing), later we’ll replace with JWT
-                .httpBasic();
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

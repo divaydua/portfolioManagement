@@ -19,14 +19,14 @@ public class PortfolioController {
     private final UserRepository userRepository;
 
     @PostMapping("/add")
-    public ResponseEntity<Holding> addHolding(@RequestBody HoldingDto dto) {
-        User user = userRepository.findById(1L).orElseThrow(); // TEMP: fixed user
+    public ResponseEntity<Holding> addHolding(@RequestParam String username, @RequestBody HoldingDto dto) {
+        User user = userRepository.findByUsername(username).orElseThrow();
         return ResponseEntity.ok(portfolioService.addHolding(user, dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<Holding>> getHoldings() {
-        User user = userRepository.findById(1L).orElseThrow(); // TEMP: fixed user
+    public ResponseEntity<List<Holding>> getHoldings(@RequestParam String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
         return ResponseEntity.ok(portfolioService.getHoldings(user));
     }
 }
