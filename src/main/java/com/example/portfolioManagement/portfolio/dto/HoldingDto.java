@@ -1,4 +1,3 @@
 package com.example.portfolioManagement.portfolio.dto;
 
-public class HoldingDto {
-}
+public record HoldingDto(String symbol, Double quantity, Double buyPrice) {}

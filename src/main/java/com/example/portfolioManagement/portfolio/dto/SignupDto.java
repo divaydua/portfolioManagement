@@ -1,4 +1,3 @@
 package com.example.portfolioManagement.portfolio.dto;
 
-public class SignupDto {
-}
+public record SignupDto(String username, String email, String password) {}
